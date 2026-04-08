@@ -15,13 +15,13 @@ int main()
 
     if (!isBinary(s)) {
         std::cout << "Ошибка: строка должна содержать только 0 и 1! ";
-        return 1;
+        return 0;
     }
 
     int k;
     std::cout << "Введите количество 0, которые поменяются на 1: ";
-    std::cin >> k;
-
+    if (std::cin >> k && k >= 0) {
+ 
     int left = 0, zeros = 0, maxLen = 0;
 
     for (int right = 0; right < s.size(); right++) {
@@ -36,5 +36,8 @@ int main()
     }
     
     std::cout << "Максимальная длина: " << maxLen << std::endl;
+    }
+    else; 
+    std::cout << "k должен быть положительным числом!" << std::endl;
     return 0;
 }
