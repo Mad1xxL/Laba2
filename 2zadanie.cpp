@@ -9,18 +9,30 @@ int romanToInt(std::string s) {
     };
 
     int result = 0;
+    int repeat = 1;
 
     for (int i = 0; i < s.size(); i++) {
         if (values.find(s[i]) == values.end()) {
-            std::cout << "Ошибка: недопустимый символ " << s[i] << std::endl;
+            std::cout << "Ошибка: недопустимый символ " << std::endl;
             return -1;
+        }
+
+        if (i > 0 && s[i] == s[i - 1]) {
+            repeat++;
+
+            if (repeat > 4) {
+                std::cout << "Ошибка: недопустимый формат ввода " << std::endl;
+                return -1;
+            }
+        } else {
+            repeat = 1;
         }
 
         int current = values[s[i]];
 
         if (i + 1 < s.size()) {
             if (values.find(s[i + 1]) == values.end()) {
-                std::cout << "Ошибка: недопустимый символ " << s[i + 1] << std::endl;
+                std::cout << "Ошибка: недопустимый символ " << std::endl;
                 return -1;
             }
 
@@ -29,6 +41,7 @@ int romanToInt(std::string s) {
             if (current < next) {
                 result += next - current;
                 i++;
+                repeat = 1;
                 continue;
             }
         }
@@ -41,7 +54,7 @@ int romanToInt(std::string s) {
 
 int main() {
     std::string input;
-    std::cout << "Введите римское число (только заглавные буквы): ";
+    std::cout << "Введите римское число: ";
     std::cin >> input;
 
     int answer = romanToInt(input);

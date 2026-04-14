@@ -10,18 +10,30 @@ function romanToInt(s) {
     };
 
     let result = 0;
+    let repeat = 1;
 
     for (let i = 0; i < s.length; i++) {
         if (!(s[i] in values)) {
-            console.log("Ошибка: недопустимый символ " + s[i]);
+            console.log("Ошибка: недопустимый символ ");
             return -1;
+        }
+
+        if (i > 0 && s[i] === s[i - 1]) {
+            repeat++;
+
+            if (repeat > 4) {
+                console.log("Ошибка: недопустимый формат ввода ");
+                return -1;
+            }
+        } else {
+            repeat = 1;
         }
 
         let current = values[s[i]];
 
         if (i + 1 < s.length) {
             if (!(s[i + 1] in values)) {
-                console.log("Ошибка: недопустимый символ " + s[i + 1]);
+                console.log("Ошибка: недопустимый символ ");
                 return -1;
             }
 
@@ -30,6 +42,7 @@ function romanToInt(s) {
             if (current < next) {
                 result += next - current;
                 i++;
+                repeat = 1;
                 continue;
             }
         }
@@ -48,7 +61,7 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-rl.question("Введите римское число (только заглавные): ", function(input) {
+rl.question("Введите римское число: ", function(input) {
     let answer = romanToInt(input);
 
     if (answer !== -1) {

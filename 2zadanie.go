@@ -14,24 +14,37 @@ func romanToInt(s string) int {
 	}
 
 	result := 0
+	repeat := 1
 
 	for i := 0; i < len(s); i++ {
 		current, ok := values[s[i]]
 		if !ok {
-			fmt.Println("Ошибка: недопустимый символ", string(s[i]))
+			fmt.Println("Ошибка: недопустимый символ")
 			return -1
+		}
+
+		if i > 0 && s[i] == s[i-1] {
+			repeat++
+
+			if repeat > 4 {
+				fmt.Println("Ошибка: недопустимый формат ввода")
+				return -1
+			}
+		} else {
+			repeat = 1
 		}
 
 		if i+1 < len(s) {
 			next, ok := values[s[i+1]]
 			if !ok {
-				fmt.Println("Ошибка: недопустимый символ", string(s[i+1]))
+				fmt.Println("Ошибка: недопустимый символ")
 				return -1
 			}
 
 			if current < next {
 				result += next - current
 				i++
+				repeat = 1
 				continue
 			}
 		}
@@ -44,7 +57,7 @@ func romanToInt(s string) int {
 
 func main() {
 	var input string
-	fmt.Print("Введите римское число (только заглавные): ")
+	fmt.Print("Введите римское число: ")
 	fmt.Scan(&input)
 
 	answer := romanToInt(input)
