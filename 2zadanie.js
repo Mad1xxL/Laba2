@@ -4,31 +4,45 @@ function romanToInt(s) {
         C: 100, D: 500, M: 1000
     };
 
+    s = s.toUpperCase();
     let result = 0;
 
     for (let i = 0; i < s.length; i++) {
-        const current = values[s[i]];
-        const next = i + 1 < s.length ? values[s[i + 1]] : 0;
-
-        if (current < next) {
-            result += next - current;
-            i++;
-        } else {
-            result += current;
+        if (!(s[i] in values)) {
+            console.log("Ошибка: недопустимый символ " + s[i]);
+            return -1;
         }
-    }
 
+        let current = values[s[i]];
+
+        if (i + 1 < s.length) {
+            let next = values[s[i + 1]];
+
+            if (current < next) {
+                result += next - current;
+                i++;
+                continue;
+            }
+        }
+        result += current;
+    }
     return result;
 }
 
-// Ввод через Node.js
-const readline = require('readline').createInterface({
+// Node.js
+const readline = require("readline");
+
+const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
-readline.question('Введите римское число: ', (input) => {
-    input = input.toUpperCase();
-    console.log('Результат:', romanToInt(input));
-    readline.close();
+rl.question("Введите римское число: ", function(input) {
+    let answer = romanToInt(input);
+
+    if (answer !== -1) {
+        console.log("Результат:", answer);
+    }
+
+    rl.close();
 });

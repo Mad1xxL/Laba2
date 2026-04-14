@@ -6,28 +6,32 @@ import (
 )
 
 func romanToInt(s string) int {
-	values := map[rune]int{
+	values := map[byte]int{
 		'I': 1, 'V': 5, 'X': 10, 'L': 50,
 		'C': 100, 'D': 500, 'M': 1000,
 	}
 
+	s = strings.ToUpper(s)
 	result := 0
-	runes := []rune(s)
 
-	for i := 0; i < len(runes); i++ {
-		current := values[runes[i]]
-
-		next := 0
-		if i+1 < len(runes) {
-			next = values[runes[i+1]]
+	for i := 0; i < len(s); i++ {
+		current, ok := values[s[i]]
+		if !ok {
+			fmt.Println("Ошибка: недопустимый символ", string(s[i]))
+			return -1
 		}
 
-		if current < next {
-			result += next - current
-			i++
-		} else {
-			result += current
+		if i+1 < len(s) {
+			next := values[s[i+1]]
+
+			if current < next {
+				result += next - current
+				i++
+				continue
+			}
 		}
+
+		result += current
 	}
 
 	return result
@@ -36,9 +40,10 @@ func romanToInt(s string) int {
 func main() {
 	var input string
 	fmt.Print("Введите римское число: ")
-	fmt.Scanln(&input)
+	fmt.Scan(&input)
 
-	input = strings.ToUpper(input)
-
-	fmt.Println("Результат:", romanToInt(input))
+	answer := romanToInt(input)
+	if answer != -1 {
+		fmt.Println("Результат:", answer)
+	}
 }

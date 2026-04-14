@@ -1,24 +1,41 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <cctype>
 
-int romanToInt(const std::string& s) {
+int romanToInt(std::string s) {
     std::map<char, int> values = {
-        {'I', 1}, {'V', 5}, {'X', 10}, {'L', 50}, {'C', 100}, {'D', 500}, {'M', 1000}
+        {'I', 1}, {'V', 5}, {'X', 10}, {'L', 50},
+        {'C', 100}, {'D', 500}, {'M', 1000}
     };
 
     int result = 0;
-    for (size_t i = 0; i < s.size(); ++i) {
-        int current = values[s[i]];
-        int next = (i + 1 < s.size()) ? values[s[i + 1]] : 0;
 
-        if (current < next) {
-            result += next - current;
-            ++i; // пропускаем следующий символ
-        } else {
-            result += current;
-        }
+    for (int i = 0; i < s.size(); i++) {
+        s[i] = std::toupper((unsigned char)s[i]);
     }
+
+    for (int i = 0; i < s.size(); i++) {
+        if (values.find(s[i]) == values.end()) {
+            std::cout << "Ошибка: недопустимый символ " << s[i] << std::endl;
+            return -1;
+        }
+
+        int current = values[s[i]];
+
+        if (i + 1 < s.size()) {
+            int next = values[s[i + 1]];
+
+            if (current < next) {
+                result += next - current;
+                i++;
+                continue;
+            }
+        }
+
+        result += current;
+    }
+
     return result;
 }
 
@@ -27,8 +44,11 @@ int main() {
     std::cout << "Введите римское число: ";
     std::cin >> input;
 
-    // Переводим в верхний регистр
-    for (char& c : input) c = std::toupper(c);
+    int answer = romanToInt(input);
 
-    std::cout << "Результат: " << romanToInt(input) << std::endl;
+    if (answer != -1) {
+        std::cout << "Результат: " << answer << std::endl;
+    }
+
+    return 0;
 }
