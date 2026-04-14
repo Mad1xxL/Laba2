@@ -1,17 +1,18 @@
 package main
 
-import (
-	"fmt"
-	"strings"
-)
+import "fmt"
 
 func romanToInt(s string) int {
 	values := map[byte]int{
-		'I': 1, 'V': 5, 'X': 10, 'L': 50,
-		'C': 100, 'D': 500, 'M': 1000,
+		'I': 1,
+		'V': 5,
+		'X': 10,
+		'L': 50,
+		'C': 100,
+		'D': 500,
+		'M': 1000,
 	}
 
-	s = strings.ToUpper(s)
 	result := 0
 
 	for i := 0; i < len(s); i++ {
@@ -22,7 +23,11 @@ func romanToInt(s string) int {
 		}
 
 		if i+1 < len(s) {
-			next := values[s[i+1]]
+			next, ok := values[s[i+1]]
+			if !ok {
+				fmt.Println("Ошибка: недопустимый символ", string(s[i+1]))
+				return -1
+			}
 
 			if current < next {
 				result += next - current
@@ -39,7 +44,7 @@ func romanToInt(s string) int {
 
 func main() {
 	var input string
-	fmt.Print("Введите римское число: ")
+	fmt.Print("Введите римское число (только заглавные): ")
 	fmt.Scan(&input)
 
 	answer := romanToInt(input)

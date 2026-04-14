@@ -1,10 +1,14 @@
 function romanToInt(s) {
     const values = {
-        I: 1, V: 5, X: 10, L: 50,
-        C: 100, D: 500, M: 1000
+        I: 1,
+        V: 5,
+        X: 10,
+        L: 50,
+        C: 100,
+        D: 500,
+        M: 1000
     };
 
-    s = s.toUpperCase();
     let result = 0;
 
     for (let i = 0; i < s.length; i++) {
@@ -16,6 +20,11 @@ function romanToInt(s) {
         let current = values[s[i]];
 
         if (i + 1 < s.length) {
+            if (!(s[i + 1] in values)) {
+                console.log("Ошибка: недопустимый символ " + s[i + 1]);
+                return -1;
+            }
+
             let next = values[s[i + 1]];
 
             if (current < next) {
@@ -24,8 +33,10 @@ function romanToInt(s) {
                 continue;
             }
         }
+
         result += current;
     }
+
     return result;
 }
 
@@ -37,7 +48,7 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-rl.question("Введите римское число: ", function(input) {
+rl.question("Введите римское число (только заглавные): ", function(input) {
     let answer = romanToInt(input);
 
     if (answer !== -1) {

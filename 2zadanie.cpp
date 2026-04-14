@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <map>
-#include <cctype>
 
 int romanToInt(std::string s) {
     std::map<char, int> values = {
@@ -12,10 +11,6 @@ int romanToInt(std::string s) {
     int result = 0;
 
     for (int i = 0; i < s.size(); i++) {
-        s[i] = std::toupper((unsigned char)s[i]);
-    }
-
-    for (int i = 0; i < s.size(); i++) {
         if (values.find(s[i]) == values.end()) {
             std::cout << "Ошибка: недопустимый символ " << s[i] << std::endl;
             return -1;
@@ -24,6 +19,11 @@ int romanToInt(std::string s) {
         int current = values[s[i]];
 
         if (i + 1 < s.size()) {
+            if (values.find(s[i + 1]) == values.end()) {
+                std::cout << "Ошибка: недопустимый символ " << s[i + 1] << std::endl;
+                return -1;
+            }
+
             int next = values[s[i + 1]];
 
             if (current < next) {
@@ -41,7 +41,7 @@ int romanToInt(std::string s) {
 
 int main() {
     std::string input;
-    std::cout << "Введите римское число: ";
+    std::cout << "Введите римское число (только заглавные буквы): ";
     std::cin >> input;
 
     int answer = romanToInt(input);

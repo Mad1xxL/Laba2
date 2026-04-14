@@ -1,10 +1,14 @@
 def roman_to_int(s):
     values = {
-        'I': 1, 'V': 5, 'X': 10, 'L': 50,
-        'C': 100, 'D': 500, 'M': 1000
+        'I': 1,
+        'V': 5,
+        'X': 10,
+        'L': 50,
+        'C': 100,
+        'D': 500,
+        'M': 1000
     }
 
-    s = s.upper()
     result = 0
     i = 0
 
@@ -16,6 +20,10 @@ def roman_to_int(s):
         current = values[s[i]]
 
         if i + 1 < len(s):
+            if s[i + 1] not in values:
+                print("Ошибка: недопустимый символ", s[i + 1])
+                return -1
+
             next_value = values[s[i + 1]]
 
             if current < next_value:
@@ -29,7 +37,7 @@ def roman_to_int(s):
     return result
 
 
-input_str = input("Введите римское число: ")
+input_str = input("Введите римское число (только заглавные): ")
 answer = roman_to_int(input_str)
 
 if answer != -1:
