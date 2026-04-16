@@ -24,7 +24,8 @@ int romanToInt(std::string s) {
                 std::cout << "Ошибка: недопустимый формат ввода " << std::endl;
                 return -1;
             }
-        } else {
+        } 
+        else {
             repeat = 1;
         }
 
