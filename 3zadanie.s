@@ -1,108 +1,110 @@
-.globl _main
-.extern _printf
-.extern _scanf
+.globl _main                  
+.extern _printf               // внешняя функция printf из стандартной библиотеки C
+.extern _scanf                // внешняя функция scanf из стандартной библиотеки C
 
-.section __TEXT,__cstring
-msg1:      .asciz "Введите количество символов N: "
-msg2:      .asciz "Количество чисел у которых сумма больше 10: %d\n"
-err:       .asciz "Ошибка ввода\n"
-fmt_in:    .asciz "%d"
+.section __TEXT,__cstring     // секция строковых констант
+msg1:      .asciz "Введите количество символов N: "    // сообщение для ввода N
+msg2:      .asciz "Количество чисел у которых сумма больше 10: %d\n" // вывод результата
+err:       .asciz "Ошибка ввода\n"                     // сообщение об ошибке
+fmt_in:    .asciz "%d"                                 // формат для scanf: чтение int
 
-.section __TEXT,__text
+.section __TEXT,__text        // секция исполняемого кода
 
 _main:
-    stp x29, x30, [sp, -64]!
-    mov x29, sp
+    stp x29, x30, [sp, -64]!  // выделяем 64 байта на стеке и сохраняем x29/x30
+                              // x29 = frame pointer, x30 = адрес возврата
+    mov x29, sp               // делаем текущий sp базой stack frame
 
     // printf("Введите количество символов N: ");
-    adrp x0, msg1@PAGE
-    add  x0, x0, msg1@PAGEOFF
-    bl _printf
+    adrp x0, msg1@PAGE        // загружаем базовый адрес страницы, где лежит msg1
+    add  x0, x0, msg1@PAGEOFF // добавляем смещение строки внутри страницы
+    bl _printf                // вызываем printf(msg1)
 
     // scanf("%d", &N);
-    adrp x0, fmt_in@PAGE
+    adrp x0, fmt_in@PAGE      // x0 = адрес строки "%d"
     add  x0, x0, fmt_in@PAGEOFF
-    add  x9, sp, #28          // &N
-    str  x9, [sp, #0]         // variadic arg -> stack
-    bl _scanf
+    add  x9, sp, #28          // x9 = адрес локальной переменной N на стеке
+    str  x9, [sp, #0]         // кладём адрес N в стек как аргумент для scanf
+    bl _scanf                 // вызываем scanf("%d", &N)
 
-    cmp w0, #1
-    bne error
+    cmp w0, #1                // scanf должен вернуть 1, если одно число успешно считано
+    bne error                 // если не 1 -> ошибка ввода
 
-    ldr w8, [sp, #28]         // N
-    cmp w8, #0
-    ble error
+    ldr w8, [sp, #28]         // загружаем N из стека в w8
+    cmp w8, #0                // сравниваем N с 0
+    ble error                 // если N <= 0, то ошибка
 
-    mov w9, #0                // count = 0
-    str w9, [sp, #24]
+    mov w9, #0                // w9 = 0
+    str w9, [sp, #24]         // count = 0 (счётчик чисел, у которых сумма цифр > 10)
 
-    mov w10, #0               // i = 0
-    str w10, [sp, #20]
+    mov w10, #0               // w10 = 0
+    str w10, [sp, #20]        // i = 0 (счётчик цикла)
 
 loop:
-    ldr w10, [sp, #20]        // i
-    ldr w8,  [sp, #28]        // N
-    cmp w10, w8
-    bge done
+    ldr w10, [sp, #20]        // w10 = i
+    ldr w8,  [sp, #28]        // w8 = N
+    cmp w10, w8               // сравниваем i и N
+    bge done                  // если i >= N, значит все числа уже обработаны
 
     // scanf("%d", &x);
-    adrp x0, fmt_in@PAGE
+    adrp x0, fmt_in@PAGE      // x0 = адрес строки "%d"
     add  x0, x0, fmt_in@PAGEOFF
-    add  x9, sp, #16          // &x
-    str  x9, [sp, #0]         // variadic arg -> stack
-    bl _scanf
+    add  x9, sp, #16          // x9 = адрес локальной переменной x
+    str  x9, [sp, #0]         // кладём адрес x в стек как аргумент для scanf
+    bl _scanf                 // вызываем scanf("%d", &x)
 
-    cmp w0, #1
-    bne error
+    cmp w0, #1                // проверяем, удалось ли считать число
+    bne error                 // если нет -> ошибка
 
-    ldr w11, [sp, #16]        // x
-    cmp w11, #0
-    ble error
+    ldr w11, [sp, #16]        // w11 = x
+    cmp w11, #0               // проверяем x
+    ble error                 // если x <= 0, то ошибка
 
-    mov w12, #0               // sum = 0
+    mov w12, #0               // sum = 0, здесь будем накапливать сумму цифр числа x
 
 sum_loop:
-    cmp w11, #0
-    beq sum_done
+    cmp w11, #0               // проверяем, осталось ли что-то от числа
+    beq sum_done              // если число стало 0, сумма цифр уже посчитана
 
-    mov  w13, #10
-    udiv w14, w11, w13
-    msub w15, w14, w13, w11   // w15 = w11 - w14*10
-    add  w12, w12, w15
-    mov  w11, w14
-    b sum_loop
+    mov  w13, #10             // w13 = 10, делитель
+    udiv w14, w11, w13        // w14 = w11 / 10, целая часть от деления
+    msub w15, w14, w13, w11   // w15 = w11 - w14*10, то есть остаток от деления на 10
+                              // это последняя цифра текущего числа
+    add  w12, w12, w15        // sum += последняя цифра
+    mov  w11, w14             // w11 = w11 / 10, "отрезаем" последнюю цифру
+    b sum_loop                // повторяем цикл для следующей цифры
 
 sum_done:
-    cmp w12, #10
-    ble next
+    cmp w12, #10              // сравниваем сумму цифр с 10
+    ble next                  // если sum <= 10, счётчик не увеличиваем
 
-    ldr w9, [sp, #24]
-    add w9, w9, #1
-    str w9, [sp, #24]
+    ldr w9, [sp, #24]         // загружаем count
+    add w9, w9, #1            // count++
+    str w9, [sp, #24]         // сохраняем обновлённый count обратно в стек
 
 next:
-    ldr w10, [sp, #20]
-    add w10, w10, #1
-    str w10, [sp, #20]
-    b loop
+    ldr w10, [sp, #20]        // загружаем i
+    add w10, w10, #1          // i++
+    str w10, [sp, #20]        // сохраняем новое значение i
+    b loop                    // переходим к обработке следующего числа
 
 done:
     // printf("Количество чисел у которых сумма цифр больше 10: %d\n", count);
-    adrp x0, msg2@PAGE
+    adrp x0, msg2@PAGE        // x0 = адрес строки формата msg2
     add  x0, x0, msg2@PAGEOFF
-    ldr  w9, [sp, #24]
-    str  x9, [sp, #0]         // variadic arg -> stack
-    bl _printf
+    ldr  w9, [sp, #24]        // w9 = count
+    str  x9, [sp, #0]         // кладём count в стек как аргумент для printf
+    bl _printf                // вызываем printf(msg2, count)
 
-    mov w0, #0
-    ldp x29, x30, [sp], #64
-    ret
+    mov w0, #0                // код возврата программы = 0
+    ldp x29, x30, [sp], #64   // восстанавливаем x29/x30 и освобождаем стек
+    ret                       // выход из main
 
 error:
-    adrp x0, err@PAGE
+    adrp x0, err@PAGE         // x0 = адрес строки "Ошибка ввода\n"
     add  x0, x0, err@PAGEOFF
-    bl _printf
+    bl _printf                // печатаем сообщение об ошибке
 
-    mov w0, #0
-    ldp x29, x30, [sp], #64
-    ret
+    mov w0, #0                // возвращаем 0
+    ldp x29, x30, [sp], #64   // восстанавливаем стек и регистры
+    ret                       // выход из программы
