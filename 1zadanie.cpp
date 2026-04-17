@@ -37,7 +37,6 @@ int main()
     
     std::cout << "Максимальная длина: " << maxLen << std::endl;
     }
-    else; 
-    std::cout << "k должен быть положительным числом!" << std::endl;
+    else std::cout << "k должен быть положительным числом!" << std::endl;
     return 0;
 }
